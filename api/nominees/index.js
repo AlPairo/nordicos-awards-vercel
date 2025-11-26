@@ -1,13 +1,38 @@
-// api/nominees/index.js - List and create nominees
-import { listNominees, createNominee } from '../../services/nominees.js';
+// api/nominees/index.js - Unified nominees handler
+import {
+    listNominees,
+    createNominee,
+    getNomineeById,
+    updateNominee,
+    deleteNominee
+} from '../../services/nominees.js';
 import { getCategoryById } from '../../services/categories.js';
 import { findMediaById } from '../../services/media.js';
 import { verifyAdminAuth } from '../../utils/auth.js';
 
 export default async function handler(req, res) {
-    // GET: List nominees
+    const { id } = req.query;
+
+    // GET: Get single nominee by ID or list all nominees
     if (req.method === 'GET') {
         try {
+            // Single nominee: GET /api/nominees?id={id}
+            if (id) {
+                const nominee = await getNomineeById(id);
+                if (!nominee) {
+                    return res.status(404).json({
+                        success: false,
+                        message: 'Nominee not found'
+                    });
+                }
+
+                return res.json({
+                    success: true,
+                    data: nominee
+                });
+            }
+
+            // List nominees: GET /api/nominees
             const categoryId = req.query.category_id;
             const onlyActive = req.query.only_active !== 'false';
 
@@ -94,6 +119,110 @@ export default async function handler(req, res) {
             return res.status(500).json({
                 success: false,
                 message: 'Server error creating nominee'
+            });
+        }
+    }
+
+    // PUT: Update nominee by ID (admin only)
+    if (req.method === 'PUT') {
+        try {
+            const user = await verifyAdminAuth(req);
+            if (!user) {
+                return res.status(401).json({
+                    success: false,
+                    message: 'Unauthorized - Admin access required'
+                });
+            }
+
+            if (!id) {
+                return res.status(400).json({
+                    success: false,
+                    message: 'Nominee ID is required'
+                });
+            }
+
+            const nominee = await getNomineeById(id);
+            if (!nominee) {
+                return res.status(404).json({
+                    success: false,
+                    message: 'Nominee not found'
+                });
+            }
+
+            // Validate category if provided
+            if (req.body.category) {
+                const categoryExists = await getCategoryById(req.body.category);
+                if (!categoryExists) {
+                    return res.status(400).json({
+                        success: false,
+                        message: 'Invalid category'
+                    });
+                }
+            }
+
+            // Validate media if provided
+            if (req.body.linked_media) {
+                const mediaExists = await findMediaById(req.body.linked_media);
+                if (!mediaExists) {
+                    return res.status(400).json({
+                        success: false,
+                        message: 'Invalid media ID'
+                    });
+                }
+            }
+
+            await updateNominee(id, req.body);
+
+            return res.json({
+                success: true,
+                message: 'Nominee updated successfully'
+            });
+        } catch (error) {
+            console.error('Update nominee error:', error);
+            return res.status(500).json({
+                success: false,
+                message: 'Server error updating nominee'
+            });
+        }
+    }
+
+    // DELETE: Delete nominee by ID (admin only)
+    if (req.method === 'DELETE') {
+        try {
+            const user = await verifyAdminAuth(req);
+            if (!user) {
+                return res.status(401).json({
+                    success: false,
+                    message: 'Unauthorized - Admin access required'
+                });
+            }
+
+            if (!id) {
+                return res.status(400).json({
+                    success: false,
+                    message: 'Nominee ID is required'
+                });
+            }
+
+            const nominee = await getNomineeById(id);
+            if (!nominee) {
+                return res.status(404).json({
+                    success: false,
+                    message: 'Nominee not found'
+                });
+            }
+
+            await deleteNominee(id);
+
+            return res.json({
+                success: true,
+                message: 'Nominee deleted successfully'
+            });
+        } catch (error) {
+            console.error('Delete nominee error:', error);
+            return res.status(500).json({
+                success: false,
+                message: 'Server error deleting nominee'
             });
         }
     }

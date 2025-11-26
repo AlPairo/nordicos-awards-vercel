@@ -29,7 +29,7 @@ api.interceptors.request.use((config) => {
 
 export const auth = {
   login: async (credentials: LoginCredentials): Promise<AuthTokens> => {
-    const response = await api.post('/auth/token', {
+    const response = await api.post('/auth?action=token', {
       username: credentials.username,
       password: credentials.password
     });
@@ -37,12 +37,12 @@ export const auth = {
   },
 
   register: async (userData: RegisterData): Promise<User> => {
-    const response = await api.post('/auth/register', userData);
+    const response = await api.post('/auth?action=register', userData);
     return response.data.data.user;
   },
 
   getMe: async (): Promise<User> => {
-    const response = await api.get('/auth/me');
+    const response = await api.get('/auth?action=me');
     return response.data.data.user;
   },
 };
@@ -58,7 +58,7 @@ export const categories = {
   },
 
   getById: async (id: string): Promise<CategoryWithNominees> => {
-    const response = await api.get(`/categories/${id}`);
+    const response = await api.get(`/categories?id=${id}`);
     return response.data.data;
   },
 
@@ -68,12 +68,12 @@ export const categories = {
   },
 
   update: async (id: string, category: Partial<Category>): Promise<Category> => {
-    const response = await api.put(`/categories/${id}`, category);
+    const response = await api.put(`/categories?id=${id}`, category);
     return response.data.data;
   },
 
   delete: async (id: string): Promise<void> => {
-    await api.delete(`/categories/${id}`);
+    await api.delete(`/categories?id=${id}`);
   },
 };
 
@@ -88,7 +88,7 @@ export const nominees = {
   },
 
   getById: async (id: string): Promise<Nominee> => {
-    const response = await api.get(`/nominees/${id}`);
+    const response = await api.get(`/nominees?id=${id}`);
     return response.data.data;
   },
 
@@ -98,12 +98,12 @@ export const nominees = {
   },
 
   update: async (id: string, nominee: Partial<Nominee>): Promise<Nominee> => {
-    const response = await api.put(`/nominees/${id}`, nominee);
+    const response = await api.put(`/nominees?id=${id}`, nominee);
     return response.data.data;
   },
 
   delete: async (id: string): Promise<void> => {
-    await api.delete(`/nominees/${id}`);
+    await api.delete(`/nominees?id=${id}`);
   },
 };
 
@@ -117,18 +117,18 @@ export const votes = {
   },
 
   getMyVotes: async (): Promise<Vote[]> => {
-    const response = await api.get('/votes/my');
+    const response = await api.get('/votes?action=my');
     return response.data.data;
   },
 
   getResults: async (categoryId?: string): Promise<VotingResults[]> => {
-    const params = categoryId ? `?category=${categoryId}` : '';
-    const response = await api.get(`/votes/results${params}`);
+    const params = categoryId ? `&category_id=${categoryId}` : '';
+    const response = await api.get(`/votes?action=results${params}`);
     return response.data.data;
   },
 
   delete: async (id: string): Promise<void> => {
-    await api.delete(`/votes/${id}`);
+    await api.delete(`/votes?id=${id}`);
   },
 };
 
@@ -138,7 +138,7 @@ export const media = {
     formData.append('file', file);
     if (description) formData.append('description', description);
 
-    const response = await api.post('/media/upload', formData, {
+    const response = await api.post('/media?action=upload', formData, {
       headers: {
         'Content-Type': 'multipart/form-data',
       },
@@ -147,7 +147,7 @@ export const media = {
   },
 
   getMyUploads: async (): Promise<MediaUpload[]> => {
-    const response = await api.get('/media/my');
+    const response = await api.get('/media?action=my');
     return response.data.data;
   },
 
@@ -158,12 +158,12 @@ export const media = {
   },
 
   getPendingUploads: async (): Promise<MediaUpload[]> => {
-    const response = await api.get('/media/pending');
+    const response = await api.get('/media?action=pending');
     return response.data.data;
   },
 
   review: async (mediaId: string, status: 'approved' | 'rejected', adminNotes?: string): Promise<any> => {
-    const response = await api.post('/media/review', {
+    const response = await api.post('/media?action=review', {
       media_id: mediaId,
       status,
       admin_notes: adminNotes
@@ -172,11 +172,11 @@ export const media = {
   },
 
   adminDelete: async (mediaId: string): Promise<void> => {
-    await api.delete(`/media/admin/${mediaId}`);
+    await api.delete(`/media?id=${mediaId}`);
   },
 
   delete: async (id: string): Promise<void> => {
-    await api.delete(`/media/${id}`);
+    await api.delete(`/media?id=${id}`);
   },
 };
 
