@@ -25,7 +25,7 @@ import {
   InputLabel,
   Avatar,
 } from '@mui/material';
-import { Edit, Delete, Add, VideoLibrary, Image as ImageIcon } from '@mui/icons-material';
+import { Edit, Delete, Add, Image as ImageIcon } from '@mui/icons-material';
 import { nominees, categories, media } from '../services/api';
 import { Nominee, Category, CreateNominee, MediaUpload } from '../types';
 import { getMediaUrl } from '../utils/supabase';
