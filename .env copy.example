@@ -1,0 +1,20 @@
+# Vercel Environment Variables (.env.local for local development)
+
+# Database
+SUPABASE_DB_URL=postgresql://user:password@db.supabase.co:5432/postgres
+
+# JWT
+JWT_SECRET=your-secret-key-change-this
+JWT_EXPIRE=30d
+
+# Supabase (for storage)
+NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
+SUPABASE_SERVICE_ROLE_KEY=your-service-role-key
+
+# Admin user (for initial setup)
+ADMIN_USERNAME=admin
+ADMIN_EMAIL=admin@nordicosawards.com
+ADMIN_PASSWORD=admin123
+
+# Bcrypt
+BCRYPT_ROUNDS=12
