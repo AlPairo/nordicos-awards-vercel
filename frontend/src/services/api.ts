@@ -134,15 +134,50 @@ export const votes = {
 
 export const media = {
   upload: async (file: File, description?: string): Promise<MediaUpload> => {
-    const formData = new FormData();
-    formData.append('file', file);
-    if (description) formData.append('description', description);
+    // Import supabase client dynamically to avoid circular dependencies
+    const { supabase } = await import('../utils/supabaseClient');
 
-    const response = await api.post('/media?action=upload', formData, {
-      headers: {
-        'Content-Type': 'multipart/form-data',
-      },
+    // Get current user's token for authentication
+    const token = localStorage.getItem('token');
+    if (!token) {
+      throw new Error('Not authenticated');
+    }
+
+    // Generate unique filename
+    const timestamp = Date.now();
+    const randomStr = Math.random().toString(36).substring(7);
+    const fileExt = file.name.split('.').pop() || 'bin';
+    const fileName = `${timestamp}-${randomStr}.${fileExt}`;
+
+    // Get user ID from token (decode JWT)
+    const tokenPayload = JSON.parse(atob(token.split('.')[1]));
+    const userId = tokenPayload.user_id;
+    const storagePath = `uploads/${userId}/${fileName}`;
+
+    // Upload directly to Supabase Storage
+    const { data: uploadData, error: uploadError } = await supabase.storage
+      .from('media')
+      .upload(storagePath, file, {
+        contentType: file.type,
+        upsert: false,
+      });
+
+    if (uploadError) {
+      console.error('Supabase upload error:', uploadError);
+      throw new Error('Failed to upload file to storage');
+    }
+
+    // Create metadata record via API
+    const mediaType = file.type.startsWith('image/') ? 'photo' : 'video';
+    const response = await api.post('/media?action=create_metadata', {
+      filename: fileName,
+      original_filename: file.name,
+      file_path: uploadData.path,
+      media_type: mediaType,
+      file_size: file.size,
+      description: description || '',
     });
+
     return response.data.data;
   },
 

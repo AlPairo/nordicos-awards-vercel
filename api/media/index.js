@@ -108,7 +108,53 @@ export default async function handler(req, res) {
         }
     }
 
-    // POST /api/media?action=upload - Upload file to Supabase Storage
+    // POST /api/media?action=create_metadata - Create metadata for file already uploaded to Supabase
+    if (req.method === 'POST' && action === 'create_metadata') {
+        try {
+            const user = await verifyAuth(req);
+            if (!user) {
+                return res.status(401).json({
+                    success: false,
+                    message: 'Unauthorized'
+                });
+            }
+
+            const { filename, original_filename, file_path, media_type, file_size, description } = req.body;
+
+            // Validation
+            if (!filename || !original_filename || !file_path || !media_type || !file_size) {
+                return res.status(400).json({
+                    success: false,
+                    message: 'Missing required fields'
+                });
+            }
+
+            // Create metadata record
+            const mediaUpload = await createMediaUpload({
+                userId: user.id,
+                filename,
+                originalFilename: original_filename,
+                filePath: file_path,
+                mediaType: media_type,
+                fileSize: file_size,
+                description: description || '',
+            });
+
+            return res.json({
+                success: true,
+                message: 'Metadata created successfully',
+                data: mediaUpload,
+            });
+        } catch (error) {
+            console.error('Create metadata error:', error);
+            return res.status(500).json({
+                success: false,
+                message: 'Server error creating metadata'
+            });
+        }
+    }
+
+    // POST /api/media?action=upload - Upload file to Supabase Storage (LEGACY - kept for backward compatibility)
     if (req.method === 'POST' && action === 'upload') {
         try {
             // Verify auth

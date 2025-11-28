@@ -53,7 +53,7 @@ const Upload: React.FC = () => {
   useEffect(() => {
     const loadMyUploads = async () => {
       if (!user) return;
-      
+
       setLoadingUploads(true);
       try {
         const uploads = await media.getMyUploads();
@@ -106,13 +106,13 @@ const Upload: React.FC = () => {
       'image/*': ['.jpg', '.jpeg', '.png', '.gif'],
       'video/*': ['.mp4', '.mov', '.avi', '.wmv'],
     },
-    maxSize: 10 * 1024 * 1024,
+    maxSize: 50 * 1024 * 1024, // 50MB - increased for direct Supabase uploads
     onDrop: (acceptedFiles) => {
       setSelectedFiles(prev => [...prev, ...acceptedFiles]);
       setError('');
     },
     onDropRejected: (rejectedFiles) => {
-      const errors = rejectedFiles.map(file => 
+      const errors = rejectedFiles.map(file =>
         file.errors.map(error => error.message).join(', ')
       ).join('; ');
       setError(`Archivos rechazados: ${errors}`);
@@ -141,11 +141,11 @@ const Upload: React.FC = () => {
       });
 
       await Promise.all(uploadPromises);
-      
+
       setSuccess(`${selectedFiles.length} archivo(s) subido(s) exitosamente. Esperando revisión del administrador.`);
       setSelectedFiles([]);
       setDescription('');
-      
+
       const uploads = await media.getMyUploads();
       setMyUploads(uploads);
     } catch (err: any) {
@@ -173,13 +173,13 @@ const Upload: React.FC = () => {
         <LogoNA height="60px" />
         Gestión de Contenido
       </Typography>
-      
+
       {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
       {success && <Alert severity="success" sx={{ mb: 2 }}>{success}</Alert>}
 
       <Paper elevation={3} sx={{ p: 0 }}>
-        <Tabs 
-          value={tabValue} 
+        <Tabs
+          value={tabValue}
           onChange={(e, newValue) => setTabValue(newValue)}
           sx={{ borderBottom: 1, borderColor: 'divider' }}
         >
@@ -193,7 +193,7 @@ const Upload: React.FC = () => {
               Comparte fotos y videos que puedan servir para las nominaciones.
               Los archivos serán revisados por un administrador antes de ser aprobados.
             </Typography>
-            
+
             <Box
               {...getRootProps()}
               sx={{
@@ -221,12 +221,12 @@ const Upload: React.FC = () => {
                     Formatos soportados: JPG, PNG, GIF, MP4, MOV, AVI, WMV
                   </Typography>
                   <Typography variant="body2" color="text.secondary">
-                    Tamaño máximo: 10MB por archivo
+                    Tamaño máximo: 50MB por archivo
                   </Typography>
                 </Box>
               )}
             </Box>
-            
+
             {selectedFiles.length > 0 && (
               <Box sx={{ mt: 3 }}>
                 <Typography variant="h6" gutterBottom>
@@ -255,7 +255,7 @@ const Upload: React.FC = () => {
                 </List>
               </Box>
             )}
-            
+
             <TextField
               fullWidth
               multiline
@@ -266,7 +266,7 @@ const Upload: React.FC = () => {
               sx={{ mt: 3 }}
               placeholder="Describe el contenido, cuándo fue tomado, contexto, etc."
             />
-            
+
             {uploading && (
               <Box sx={{ mt: 3 }}>
                 <LinearProgress variant="determinate" value={uploadProgress} />
@@ -275,7 +275,7 @@ const Upload: React.FC = () => {
                 </Typography>
               </Box>
             )}
-            
+
             <Box sx={{ mt: 3, textAlign: 'center' }}>
               <Button
                 variant="contained"
@@ -295,7 +295,7 @@ const Upload: React.FC = () => {
             <Typography variant="h6" gutterBottom>
               Mis Archivos Subidos
             </Typography>
-            
+
             {loadingUploads ? (
               <Box sx={{ display: 'flex', justifyContent: 'center', py: 4 }}>
                 <LinearProgress sx={{ width: '50%' }} />
@@ -311,11 +311,11 @@ const Upload: React.FC = () => {
                 </Typography>
               </Box>
             ) : (
-              <Box 
-                sx={{ 
-                  display: 'grid', 
-                  gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', 
-                  gap: 3 
+              <Box
+                sx={{
+                  display: 'grid',
+                  gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))',
+                  gap: 3
                 }}
               >
                 {myUploads.map((upload) => (
@@ -340,17 +340,17 @@ const Upload: React.FC = () => {
                         }}
                       >
                         <VideoFile sx={{ fontSize: 64, color: 'text.secondary' }} />
-                        <PlayCircle 
-                          sx={{ 
-                            position: 'absolute', 
-                            fontSize: 48, 
-                            color: 'primary.main', 
-                            opacity: 0.8 
-                          }} 
+                        <PlayCircle
+                          sx={{
+                            position: 'absolute',
+                            fontSize: 48,
+                            color: 'primary.main',
+                            opacity: 0.8
+                          }}
                         />
                       </Box>
                     )}
-                    
+
                     <CardContent>
                       <IconButton
                         size="small"
@@ -361,23 +361,23 @@ const Upload: React.FC = () => {
                       </IconButton>
                       <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
                         {getStatusIcon(upload.status)}
-                        <Chip 
-                          label={getStatusText(upload.status)} 
+                        <Chip
+                          label={getStatusText(upload.status)}
                           color={getStatusColor(upload.status) as any}
                           size="small"
                         />
                       </Box>
-                      
+
                       <Typography variant="subtitle2" gutterBottom>
                         {upload.original_filename}
                       </Typography>
-                      
+
                       {upload.description && (
                         <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
                           {upload.description}
                         </Typography>
                       )}
-                      
+
                       <Typography variant="caption" color="text.secondary">
                         {(upload.file_size / 1024 / 1024).toFixed(2)} MB
                       </Typography>
@@ -385,7 +385,7 @@ const Upload: React.FC = () => {
                       <Typography variant="caption" color="text.secondary">
                         {new Date(upload.created_at).toLocaleDateString('es-ES')}
                       </Typography>
-                      
+
                       {upload.admin_notes && (
                         <Alert severity="info" sx={{ mt: 1 }}>
                           <Typography variant="caption">
