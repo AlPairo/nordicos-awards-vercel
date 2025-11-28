@@ -33,7 +33,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     try {
       const tokens = await auth.login(credentials);
       localStorage.setItem('token', tokens.access_token);
-      
+
       const userData = await auth.getMe();
       setUser(userData);
     } catch (error) {
@@ -43,7 +43,11 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   };
 
   const register = async (userData: RegisterData) => {
-    try {      
+    try {
+      // First, register the user
+      await auth.register(userData);
+
+      // Then, log them in
       await login({
         username: userData.username,
         password: userData.password,
