@@ -80,7 +80,7 @@ const NomineeManagement: React.FC = () => {
           description: formData.description,
           category_id: formData.category,
           is_active: formData.is_active,
-          approved_media_id: selectedMedia?.id || null,
+          linked_media: selectedMedia?.id || null,
         };
         await nominees.update(editingNominee.id, updateData);
       } else {
@@ -88,7 +88,7 @@ const NomineeManagement: React.FC = () => {
           name: formData.name,
           description: formData.description,
           category: formData.category,
-          approved_media_id: selectedMedia?.id || undefined,
+          linked_media: selectedMedia?.id || null,
         };
         await nominees.create(createData);
       }

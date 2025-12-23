@@ -29,7 +29,7 @@ export interface Nominee {
   is_active: boolean;
   created_at: string;
   vote_count?: number;
-  linked_media?: MediaUpload | string;
+  linked_media?: MediaUpload | string | null;
 }
 
 export interface CreateNominee {
@@ -37,7 +37,7 @@ export interface CreateNominee {
   description?: string;
   category: string;
   image_url?: string;
-  approved_media_id?: string; 
+  linked_media?: string | null;
 }
 
 export interface Vote {

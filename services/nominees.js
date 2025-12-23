@@ -103,7 +103,7 @@ export const createNominee = async (data) => {
         mediaType = 'none',
         order = 0,
         createdBy,
-        linkedMedia = null,
+        linked_media = null,
         metadata = {}
     } = data;
 
@@ -124,7 +124,7 @@ export const createNominee = async (data) => {
             metadata.fileSize || null,
             metadata.mimeType || null,
             metadata.uploadedAt || null,
-            linkedMedia,
+            linked_media,
             createdBy
         ]
     );
